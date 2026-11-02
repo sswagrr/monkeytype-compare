@@ -35,7 +35,7 @@ func PrintDiff(r1, r2 Records) {
 }
 
 func PrintHeader() {
-	fmt.Printf("%-15s %6s %6s %6s %6s %6s %6s %6s %6s\n",
+	fmt.Printf("%-15s %7s %7s %7s %7s %7s %7s %7s %7s\n",
 		"", "15s", "30s", "60s", "120s", "10", "25", "50", "100")
 }
 
@@ -47,7 +47,7 @@ func DisplayRecords(r1, r2 Records) {
 }
 
 func PrintRecords(r Records) {
-	line := fmt.Sprintf("%6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f\n",
+	line := fmt.Sprintf("%7.2f %7.2f %7.2f %7.2f %7.2f %7.2f %7.2f %7.2f\n",
 		r.Time15, r.Time30, r.Time60, r.Time120, r.Words10, r.Words25, r.Words50, r.Words100)
 
 	fmt.Printf("%-15s %s", r.Name, line)
