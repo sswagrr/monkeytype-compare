@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 )
@@ -12,46 +13,42 @@ func parseArgs() (string, string, error) {
 	return os.Args[1], os.Args[2], nil
 }
 
-func main() {
-	var exist bool
-	var err error
-	var player1, player2 string
+type result struct {
+	rec Records
+	err error
+}
 
-	player1, player2, err = parseArgs()
+func fetchAsync(name string) <-chan result {
+	ch := make(chan result, 1)
+	go func() {
+		rec, err := FetchRecords(name)
+		ch <- result{rec, err}
+	}()
+	return ch
+}
+
+func main() {
+	player1, player2, err := parseArgs()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	exist, err = UsernameExists(player1)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
-	} else if !exist {
-		fmt.Printf("Username '%s' does not exist.\n", player1)
-		return
+	ch1, ch2 := fetchAsync(player1), fetchAsync(player2)
+	res1, res2 := <-ch1, <-ch2
+
+	for _, r := range []struct {
+		name string
+		err  error
+	}{{player1, res1.err}, {player2, res2.err}} {
+		if errors.Is(r.err, ErrUserNotFound) {
+			fmt.Printf("Username '%s' does not exist.\n", r.name)
+			return
+		} else if r.err != nil {
+			fmt.Println("Error:", r.err)
+			return
+		}
 	}
 
-	exist, err = UsernameExists(player2)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
-	} else if !exist {
-		fmt.Printf("Username '%s' does not exist.\n", player2)
-		return
-	}
-
-	rec1, err := FetchRecords(player1)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
-	}
-
-	rec2, err := FetchRecords(player2)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
-	}
-
-	DisplayRecords(rec1, rec2)
+	DisplayRecords(res1.rec, res2.rec)
 }
