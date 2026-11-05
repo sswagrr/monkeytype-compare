@@ -5,7 +5,7 @@ A small CLI that compares the personal bests of two [Monkeytype](https://monkeyt
 ## Usage
 
 ```bash
-go build *.go -o monkeytype-compare
+go build -o monkeytype-compare *.go
 ./monkeytype-compare <player1> <player2>
 ```
 
